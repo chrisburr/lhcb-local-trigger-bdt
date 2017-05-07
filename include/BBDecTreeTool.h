@@ -1,15 +1,10 @@
-// $Id: $  -*- C++ -*-
-#ifndef BBDecTreeTool_H
-#define BBDecTreeTool_H
+#pragma once
 // ============================================================================
 // Include files
+#include <fstream>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <fstream>
-#include "GaudiAlg/GaudiTool.h"
-#include "Kernel/IParticleFilter.h"
-#include "Kernel/IParticleDictTool.h"
 // ============================================================================
 /** @class BBDecTreeTool
  *  This tool applies a lookup table selection, such as the BBDT cuts for
@@ -51,14 +46,12 @@
  *      from HltLine.HltLine import Hlt2Member
  *      from HltLine.HltLine import Hlt1Tool
  *
- *      varHandler = Hlt1Tool( type = LoKi__Hybrid__DictOfFunctors, name = "VarHandler",
- *                        Variables = {   "M"          :  "MM/MeV"
- *                              , "DOCA"       :  "DOCAMAX_('',False)/mm"
- *                              , "CANDIPCHI2" :  "BPVIPCHI2()"
- *                              , "MCOR"       :  "BPVCORRM"
- *                              , "FDCHI2"     :  "BPVVDCHI2"
- *                              , "PT"         :  "PT"
- *                              , "PTMIN"      :  "MINTREE(ISBASIC,PT)/MeV"
+ *      varHandler = Hlt1Tool( type = LoKi__Hybrid__DictOfFunctors, name =
+ * "VarHandler", Variables = {   "M"          :  "MM/MeV" , "DOCA"       :
+ * "DOCAMAX_('',False)/mm" , "CANDIPCHI2" :
+ * "BPVIPCHI2()" , "MCOR"       :  "BPVCORRM" ,
+ * "FDCHI2"     :  "BPVVDCHI2" , "PT"         :
+ * "PT" , "PTMIN"      :  "MINTREE(ISBASIC,PT)/MeV"
  *                              , "PTSUM"      :  "SUMTREE(PT,ISBASIC,0.0)/MeV"
  *                              }
  *
@@ -87,70 +80,38 @@
  *                 by $Author:$
  *
  */
-class BBDecTreeTool : public extends1<GaudiTool,IParticleFilter>{
+class BBDecTreeTool {
 
-  friend class ToolFactory<BBDecTreeTool>; ///< friend factory
-
-  public:
-
-  /** initialize tool */
-  virtual StatusCode initialize();
-
-  /** finalize tool */
-  virtual StatusCode finalize();
-
-  /** performs the filtering based on the BBDecTreeTool response
-   *  @see IParticleFilter
-   */
-  virtual bool operator()(const LHCb::Particle* p) const ;
-
-
-protected:
-
+public:
+  virtual bool operator()(const std::map<std::string, double> &vals) const;
   /** standard constructor
    *  @param type the actual tool type (?)
    *  @param name the tool instance name
    *  @param parent the tool parent
    */
-  BBDecTreeTool(const std::string& type, const std::string& name,
-        const IInterface* parent);
+  BBDecTreeTool(const double threshold, const std::string &paramFile);
 
   /// virtual & protected destructor
   virtual ~BBDecTreeTool(){};
 
+protected:
 private:
-
-  /// default constructor is disabled
-  BBDecTreeTool();
-
-  /// copy constructor is disabled
-  BBDecTreeTool(const BBDecTreeTool&);
-
   /// assignemet operator is disabled
-  BBDecTreeTool& operator=(const BBDecTreeTool&);
-
-  /// utility method for file read errors
-  StatusCode readError(const std::string &msg) const;
+  BBDecTreeTool &operator=(const BBDecTreeTool &);
 
   /// utility method to obtain index to m_values
-  int getIndex(const IParticleDictTool::DICT & ) const;
+  int getIndex(const std::map<std::string, double> &vals) const;
 
   /// utility method to obtain split index for single variable
   int getVarIndex(int varIndex, double value) const;
 
   // properties
-  double m_threshold; ///< response threshold (cut) value
+  double m_threshold;      ///< response threshold (cut) value
   std::string m_paramFile; ///< parameter file (full path)
-  int m_key; ///< ANNSvc key to write to
-  std::string m_dictool_name; ///< the typename of the DictOfFunctors tool
 
   // attributes
   int m_ntrees; ///< number of trees used in training
   std::vector<std::string> m_var_names;
-  std::vector<std::vector<double> > m_splits; ///< variable split points
-  std::vector<unsigned short int> m_values; ///< response values
-
-  IParticleDictTool *m_hybrid_dicttool;
+  std::vector<std::vector<double>> m_splits; ///< variable split points
+  std::vector<unsigned short int> m_values;  ///< response values
 };
-// ============================================================================
-#endif /* BBDecTreeTool_H */
