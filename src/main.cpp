@@ -31,9 +31,9 @@ BDTVars get_cols(TTreeReader *myReader) {
 
 int main(int argc, char* argv[])
 {
-    auto bdt = BBDecTreeTool("root://eoslhcb.cern.ch//eos/lhcb/user/c/cburr/tmp/D02PhiGamma_BDT_Trigger_Check/DVntuple.root");
+    auto bdt = BBDecTreeTool("../Hlt2Dst2PiD02HHX_BDTParams_v2r0.txt");
 
-    std::string fn = "../DVntuple.root";
+    std::string fn = "root://eoslhcb.cern.ch//eos/lhcb/user/c/cburr/tmp/D02PhiGamma_BDT_Trigger_Check/DVntuple.root";
     TFile *f = TFile::Open(fn.c_str(), "READ");
     if (f == 0) {
         std::cout << "Failed to open: " << fn << std::endl;
