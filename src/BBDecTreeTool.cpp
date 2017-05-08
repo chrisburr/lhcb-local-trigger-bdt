@@ -78,19 +78,19 @@ BBDecTreeTool::BBDecTreeTool(const double threshold, const std::string &paramFil
 }
 
 // ============================================================================
-int BBDecTreeTool::getVarIndex(int varIndex, double value) const {
-  if (value < m_splits[varIndex][0])
+int BBDecTreeTool::getVarIndex(int varIndex, TTreeReaderValue<Double_t>* value) const {
+  if (*(*value) < m_splits[varIndex][0])
     return 0;
   unsigned int size = m_splits[varIndex].size();
   for (unsigned int s = 1; s < size; s++) {
-    if (value < m_splits[varIndex][s])
+    if (*(*value) < m_splits[varIndex][s])
       return s - 1;
   }
   return size - 1;
 }
 
 // ============================================================================
-int BBDecTreeTool::getIndex(const std::map<std::string, double> &vals) const {
+int BBDecTreeTool::getIndex(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const {
   unsigned int size = m_splits.size();
 
   int ind_mult = 1, index = 0;
@@ -112,8 +112,8 @@ int BBDecTreeTool::getIndex(const std::map<std::string, double> &vals) const {
 }
 
 // ============================================================================
-bool BBDecTreeTool::
-operator()(const std::map<std::string, double> &vals) const {
+Double_t BBDecTreeTool::
+operator()(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const {
   // get response
   int index = this->getIndex(vals);
   if (index < 0 || index >= (int)m_values.size()) {
@@ -122,5 +122,6 @@ operator()(const std::map<std::string, double> &vals) const {
   }
   double response = m_values[index] / (double)m_ntrees;
 
-  return response > m_threshold;
+  // return response > m_threshold;
+  return response;
 }

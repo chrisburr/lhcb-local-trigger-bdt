@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "TTreeReaderValue.h"
 // ============================================================================
 /** @class BBDecTreeTool
  *  This tool applies a lookup table selection, such as the BBDT cuts for
@@ -83,7 +84,7 @@
 class BBDecTreeTool {
 
 public:
-  virtual bool operator()(const std::map<std::string, double> &vals) const;
+  virtual Double_t operator()(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const;
   /** standard constructor
    *  @param type the actual tool type (?)
    *  @param name the tool instance name
@@ -100,10 +101,10 @@ private:
   BBDecTreeTool &operator=(const BBDecTreeTool &);
 
   /// utility method to obtain index to m_values
-  int getIndex(const std::map<std::string, double> &vals) const;
+  int getIndex(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const;
 
   /// utility method to obtain split index for single variable
-  int getVarIndex(int varIndex, double value) const;
+  int getVarIndex(int varIndex, TTreeReaderValue<Double_t>* value) const;
 
   // properties
   double m_threshold;      ///< response threshold (cut) value
