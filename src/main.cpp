@@ -8,17 +8,16 @@
 // Local
 #include "../include/BBDecTreeTool.h"
 
-std::map<std::string, TTreeReaderValue<Double_t>*> get_cols(TTreeReader *myReader) {
-    TTreeReaderValue<Double_t> *D0CHI2 = new TTreeReaderValue<Double_t>(*myReader, "D0CHI2");
-    TTreeReaderValue<Double_t> *D0FD = new TTreeReaderValue<Double_t>(*myReader, "D0FD");
-    TTreeReaderValue<Double_t> *DSTDOCA = new TTreeReaderValue<Double_t>(*myReader, "DSTDOCA");
-    TTreeReaderValue<Double_t> *DSTFD = new TTreeReaderValue<Double_t>(*myReader, "DSTFD");
-    TTreeReaderValue<Double_t> *SLPCOSTHETA = new TTreeReaderValue<Double_t>(*myReader, "SLPCOSTHETA");
-    TTreeReaderValue<Double_t> *SLPPT = new TTreeReaderValue<Double_t>(*myReader, "SLPPT");
-    TTreeReaderValue<Double_t> *TRSUMPT = new TTreeReaderValue<Double_t>(*myReader, "TRSUMPT");
+BDTVars get_cols(TTreeReader *myReader) {
+    TTreeReaderValue<Double_t> *D0CHI2 = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_D0CHI2");
+    TTreeReaderValue<Double_t> *D0FD = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_D0FD");
+    TTreeReaderValue<Double_t> *DSTDOCA = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_DSTDOCA");
+    TTreeReaderValue<Double_t> *DSTFD = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_DSTFD");
+    TTreeReaderValue<Double_t> *SLPCOSTHETA = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_SLPCOSTHETA");
+    TTreeReaderValue<Double_t> *SLPPT = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_SLPPT");
+    TTreeReaderValue<Double_t> *TRSUMPT = new TTreeReaderValue<Double_t>(*myReader, "Dstar_LoKi_TRSUMPT");
 
-    std::map<std::string, TTreeReaderValue<Double_t>*> event_info;
-
+    BDTVars event_info;
     event_info["D0CHI2"] = D0CHI2;
     event_info["D0FD"] = D0FD;
     event_info["DSTDOCA"] = DSTDOCA;
@@ -32,23 +31,23 @@ std::map<std::string, TTreeReaderValue<Double_t>*> get_cols(TTreeReader *myReade
 
 int main(int argc, char* argv[])
 {
-    auto bdt = BBDecTreeTool(1.4550000, "../Hlt2Dst2PiD02HHX_BDTParams_v2r0.txt");
+    auto bdt = BBDecTreeTool("root://eoslhcb.cern.ch//eos/lhcb/user/c/cburr/tmp/D02PhiGamma_BDT_Trigger_Check/DVntuple.root");
 
-    std::string fn = "../classifier_cols.root";
+    std::string fn = "../DVntuple.root";
     TFile *f = TFile::Open(fn.c_str(), "READ");
     if (f == 0) {
         std::cout << "Failed to open: " << fn << std::endl;
         return 1;
     }
     f->ls();
-    std::string tree_key = "example";
+    std::string tree_key = "DstToD0pi_D0Tophigamma_phiToKK/DecayTree";
     TTree *tree = (TTree*) f->Get(tree_key.c_str());
     if (tree == 0) {
         std::cout << "Failed to read: " << tree_key << std::endl;
         return 1;
     }
 
-    for (double threshold = 0.8; threshold < 1.5; threshold += 0.05) {
+    for (double threshold = 0.6; threshold < 1.65; threshold += 0.05) {
         TTreeReader myReader(tree);
         auto event_info = get_cols(&myReader);
 
@@ -65,7 +64,7 @@ int main(int argc, char* argv[])
 
        std::cout << "With threshold > " << threshold << std::endl;
        std::cout << "   Accepted " << n_accepted << " out of " << n_accepted+n_rejected
-                 << " (" << 100*n_accepted / (n_accepted+n_rejected) << "%)" << std::endl;
+                 << " (" << 100 * (double)n_accepted / (double)(n_accepted+n_rejected) << "%)" << std::endl;
     }
 
     return 0;

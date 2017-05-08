@@ -2,8 +2,8 @@
 #include <iostream>
 #include <sstream>
 
-BBDecTreeTool::BBDecTreeTool(const double threshold, const std::string &paramFile)
-    : m_threshold(threshold), m_paramFile(paramFile) {
+BBDecTreeTool::BBDecTreeTool(const std::string &paramFile)
+    : m_paramFile(paramFile) {
   std::ifstream inFile(m_paramFile.c_str());
   if (!inFile.is_open()) {
     std::cout << "Problem with file " << m_paramFile << ": Failed to open file"
@@ -71,14 +71,14 @@ BBDecTreeTool::BBDecTreeTool(const double threshold, const std::string &paramFil
   inFile.close();
 
   // print info
-  std::cout << "Initialized w/ Threshold = " << m_threshold
-            << ", ParamFile = " << m_paramFile << " ("
+  std::cout << "Initialized with ParamFile = " << m_paramFile << " ("
             << m_ntrees << " trees," << nvar << " vars," << numSplits
             << " splits)." << std::endl;
 }
 
 // ============================================================================
-int BBDecTreeTool::getVarIndex(int varIndex, TTreeReaderValue<Double_t>* value) const {
+int BBDecTreeTool::getVarIndex(int varIndex,
+                               TTreeReaderValue<Double_t> *value) const {
   if (*(*value) < m_splits[varIndex][0])
     return 0;
   unsigned int size = m_splits[varIndex].size();
@@ -90,7 +90,7 @@ int BBDecTreeTool::getVarIndex(int varIndex, TTreeReaderValue<Double_t>* value) 
 }
 
 // ============================================================================
-int BBDecTreeTool::getIndex(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const {
+int BBDecTreeTool::getIndex(const BDTVars &vals) const {
   unsigned int size = m_splits.size();
 
   int ind_mult = 1, index = 0;
@@ -100,8 +100,9 @@ int BBDecTreeTool::getIndex(const std::map<std::string, TTreeReaderValue<Double_
 
     auto pval = vals.find(m_var_names[v]);
     if (pval == vals.end()) {
-      std::cout << "Unable to find value for " + m_var_names[v] +
-            " in dictionary of functor values, returning invalid index." << std::endl;
+      std::cout << "Unable to find value for " << m_var_names[v]
+                << " in dictionary of functor values, returning invalid index."
+                << std::endl;
       index = -1;
       break;
     }
@@ -112,8 +113,7 @@ int BBDecTreeTool::getIndex(const std::map<std::string, TTreeReaderValue<Double_
 }
 
 // ============================================================================
-Double_t BBDecTreeTool::
-operator()(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const {
+Double_t BBDecTreeTool::operator()(const BDTVars &vals) const {
   // get response
   int index = this->getIndex(vals);
   if (index < 0 || index >= (int)m_values.size()) {
@@ -122,6 +122,5 @@ operator()(const std::map<std::string, TTreeReaderValue<Double_t>*> &vals) const
   }
   double response = m_values[index] / (double)m_ntrees;
 
-  // return response > m_threshold;
   return response;
 }
